@@ -7,12 +7,17 @@ use core::panic::PanicInfo;
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
-    vga_buffer::print_something();
+    use vga_buffer::hello_rust_os;
+    use core::fmt::Write;
+    hello_rust_os();
+    write!(vga_buffer::WRITER.lock(), "My Own Operating System Written In Rust\n").unwrap();
+    println!("Hello World!");
 
     loop {}
 }
 
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
+fn panic(info: &PanicInfo) -> ! {
+    println!("{}", info);
     loop {}
 }
