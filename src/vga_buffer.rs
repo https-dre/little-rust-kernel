@@ -28,7 +28,7 @@ struct ColorCode(u8);
 
 impl ColorCode {
     fn new(foreground: Color, background: Color) -> ColorCode {
-        ColorCode((background as u8) << 4 | (foreground as u8))
+        ColorCode(((background as u8) << 4) | (foreground as u8))
     }
 }
 
@@ -36,11 +36,12 @@ impl ColorCode {
 #[repr(C)]
 struct ScreenChar {
     ascii_character: u8,
-    color_code: ColorCode
+    color_code: ColorCode,
 }
 
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
+const COL_DEFAULT: usize = 1;
 
 #[repr(transparent)]
 struct Buffer {
@@ -60,7 +61,7 @@ impl Writer {
             b'\n' => self.new_line(), // se for um byte nullo, pular linha
             byte => {
                 if self.column_position >= BUFFER_WIDTH {
-                    self.new_line()
+                    self.new_line();
                 }
 
                 let row = BUFFER_HEIGHT - 1;
@@ -69,7 +70,7 @@ impl Writer {
                 let color_code = self.color_code;
                 self.buffer.chars[row][col].write(ScreenChar {
                     ascii_character: byte,
-                    color_code
+                    color_code,
                 });
                 self.column_position += 1;
             }
@@ -80,12 +81,12 @@ impl Writer {
         for row in 1..BUFFER_HEIGHT {
             for col in 0..BUFFER_WIDTH {
                 let character = self.buffer.chars[row][col].read(); // pega o caracter
-                self.buffer.chars[row - 1][col].write(character);    // move para cima
+                self.buffer.chars[row - 1][col].write(character); // move para cima
             }
         }
 
         self.clear_row(BUFFER_HEIGHT - 1);
-        self.column_position = 2;
+        self.column_position = COL_DEFAULT;
     }
 
     fn clear_row(&mut self, row: usize) {
@@ -119,14 +120,55 @@ impl fmt::Write for Writer {
     }
 }
 
-pub fn print_something() {
-    use core::fmt::Write;
+use lazy_static::lazy_static;
+use spin::Mutex;
+
+lazy_static! {
+    pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
+        column_position: COL_DEFAULT,
+        color_code: ColorCode::new(Color::White, Color::Black),
+        buffer: unsafe {
+            &mut *(0xb8000 as *mut Buffer)
+        },
+    });
+}
+
+/* 
+    Este WRITER é bastante inútil, uma vez que é imutável. 
+    Isso significa que não podemos escrever nada nele 
+    (já que todos os métodos de escrita recebem &mut self).
+    Posso usar o Mutext para adicionar uma mutabilidade segura
+    para a static WRITER 
+*/
+
+pub fn hello_rust_os() {
     let mut writer = Writer {
-        column_position: 2,
-        color_code: ColorCode::new(Color::Yellow, Color::Black),
-        buffer: unsafe { &mut *(0xb8000 as *mut Buffer)},
+        column_position: COL_DEFAULT,
+        color_code: ColorCode::new(Color::Green, Color::Black),
+        buffer: unsafe {
+            &mut *(0xb8000 as *mut Buffer)
+        },
     };
 
-    write!(writer, "My own Operating System written in Rust\n").unwrap();
-    write!(writer, "Testing New Lines Method").unwrap();
+    writer.write_string("System initialized with Sucess\n\n");
+}
+
+
+// macros para print usando vga
+
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => ($crate::vga_buffer::_print(format_args!($($arg)*)));
+}
+
+#[macro_export]
+macro_rules! println {
+    () => ($crate::print!("\n"));
+    ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
+}
+
+#[doc(hidden)]
+pub fn _print(args: fmt::Arguments) {
+    use core::fmt::Write;
+    WRITER.lock().write_fmt(args).unwrap();
 }
