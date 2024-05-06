@@ -2,7 +2,7 @@
 
 To compile the system, use the command below:
   
-    cargo build --target dev_os.json
+    cargo build --target rust_os.json
 
 Use the command below to run with qemu:
 
