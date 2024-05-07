@@ -150,7 +150,7 @@ pub fn hello_rust_os() {
         },
     };
 
-    writer.write_string("System initialized with Success\n\n");
+    writer.write_string("Boot Successful\n\n");
 }
 
 
