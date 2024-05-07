@@ -5,7 +5,7 @@
 #![reexport_test_harness_main = "test_main"]
 
 use rust_os::println;
-use rust_os::vga_buffer::{hello_rust_os, WRITER};
+use rust_os::vga_buffer::hello_rust_os;
 use core::panic::PanicInfo;
 
 #[no_mangle]

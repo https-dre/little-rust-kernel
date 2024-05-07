@@ -9,6 +9,7 @@ use rust_os::println;
 
 #[no_mangle] 
 pub extern "C" fn _start() -> ! {
+    println!("Running basic_boot.rs");
     test_main();
 
     loop {}
