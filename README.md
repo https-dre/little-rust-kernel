@@ -1,9 +1,13 @@
-# My own operating system written in Rust
+# Minimal Operating System Kernel
 
-To compile the system, use the command below:
-  
-    cargo build --target rust_os.json
+To compile and run the system, use:
 
-Use the command below to run with qemu:
+    cargo run
 
-    qemu-system-x86_64 -drive format=raw,file=target/dev_os/debug/bootimage-dev_os.bin
+*make sure you have QEMU installed*
+
+## Features Added
+
+- vga text mode
+- tests integrated
+- CPU exceptions suport
