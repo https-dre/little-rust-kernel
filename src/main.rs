@@ -11,8 +11,10 @@ use core::panic::PanicInfo;
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
     hello_rust_os();
-    println!("My own Operating System written in Rust");
-
+    println!("running kernel");
+    rust_os::init();
+    println!("Initializing Global Descriptor Table and Interrupt Descriptor Table");
+    
     #[cfg(test)]
     test_main();
 
