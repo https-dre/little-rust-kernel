@@ -4,12 +4,24 @@ use x86_64::structures::tss::TaskStateSegment;
 use lazy_static::lazy_static;
 use core::ptr::addr_of;
 
-use x86_64::structures::gdt::{GlobalDescriptorTable, Descriptor, SegmentSelector};
+use x86_64::structures::gdt::{ GlobalDescriptorTable, Descriptor, SegmentSelector };
 
 pub const DOUBLE_FAULT_IST_INDEX: u16 = 0;
-// TSS = Task State Segment
-// IST = Interrupt Stack Table
-// GDT = Global Descriptor Tabe
+// TSS = Task State Segment contém informações sobre o estado atual um Processo
+// IST = Interrupt Stack Table usada para fornecer pilhas de interrupção separadas
+// GDT = Global Descriptor Table
+
+/* 
+    GDT
+        é uma estrutura de dados em sistemas x86 que define 
+        os segmentos de memória utilizados pelo processador
+        para acessar diferentes partes da memória do sistema.
+        A GDT contém descritores para segmentos de código, segmentos de dados,
+        segmentos de pilha e outros tipos de segmentos. Cada entrada na GDT
+        define as propriedades de um segmento de memória, como seu tamanho,
+        permissões de acesso e tipo. A GDT é uma parte essencial da arquitetura
+        de segmentação do x86 e é usada pelo processador para controlar o acesso à memória do sistema.
+*/
 
 lazy_static! {
     static ref TSS: TaskStateSegment = {
@@ -37,12 +49,12 @@ lazy_static! {
 
 struct Selectors {
     code_selector: SegmentSelector,
-    tss_selector: SegmentSelector
+    tss_selector: SegmentSelector,
 }
 
 pub fn init() {
     use x86_64::instructions::tables::load_tss;
-    use x86_64::instructions::segmentation::{CS, Segment};
+    use x86_64::instructions::segmentation::{ CS, Segment };
 
     GDT.0.load();
     unsafe {
