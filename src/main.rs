@@ -14,11 +14,12 @@ pub extern "C" fn _start() -> ! {
     println!("running kernel");
     rust_os::init();
     println!("Initializing Global Descriptor Table and Interrupt Descriptor Table");
+    println!("[keyboard suport added]");
+
+    rust_os::hlt_loop();
     
     #[cfg(test)]
     test_main();
-
-    loop {}
 }
 
 // Função Chamada Em Caso De Pânico
@@ -26,7 +27,7 @@ pub extern "C" fn _start() -> ! {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    loop {}
+    rust_os::hlt_loop();
 }
 
 #[cfg(test)]
