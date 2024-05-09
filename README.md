@@ -11,4 +11,4 @@ To compile and run the system, use:
 - VGA Text Mode
 - Integrated Tests
 - CPU exceptions handling
-- Keyboard interrupts: *only some keys suport*
+- Keyboard interrupts: *only some keys suported*
