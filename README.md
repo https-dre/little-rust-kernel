@@ -8,6 +8,7 @@ To compile and run the system, use:
 
 ## Features Added
 
-- vga text mode
-- tests integrated
-- CPU exceptions suport
+- VGA Text Mode
+- Integrated Tests
+- CPU exceptions handling
+- Keyboard interrupts: *only some keys suport*
